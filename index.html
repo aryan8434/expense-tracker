@@ -1,11 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
 </head>
+
 <body>
-	
+    <h1>Expense Tracker</h1>
+    <form onsubmit="handleSubmit(event)">
+        Choose Expense Amount:
+        <input type="number" placeholder="Enter expense" id="amount" /> Choose Description:
+        <input type="text" placeholder="Enter description" id="description" /> Choose Category:
+        <select id="category">
+        <option value="food">Food</option>
+        <option value="transportation">Fuel</option>
+        <option value="entertainment">Entertainment</option>
+        <option value="utilities">Utilities</option>
+        <option value="other">Other</option>
+      </select>
+        <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+
+    <!-- 1. The Bootstrap Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <!-- 2. Your Custom Script -->
+    <script src="index.js"></script>
+
 </body>
+
+</html>
+</body>
+
 </html>
