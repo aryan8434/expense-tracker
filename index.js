@@ -1,5 +1,6 @@
 // State management
 let expenses = [];
+let editingId = null;
 const STORAGE_KEY = "sharpener_expenses_v1";
 
 const CATEGORY_CONFIG = {
@@ -9,6 +10,33 @@ const CATEGORY_CONFIG = {
   utilities: { label: "Utilities", icon: "bi-lightning-charge-fill" },
   other: { label: "Other", icon: "bi-box-seam-fill" }
 };
+
+// Toast Notifications
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `custom-toast toast-${type}`;
+  
+  let iconClass = "bi-check-circle-fill text-success";
+  if (type === "info") iconClass = "bi-info-circle-fill text-info";
+  if (type === "danger") iconClass = "bi-trash3-fill text-danger";
+
+  toast.innerHTML = `
+    <i class="bi ${iconClass} fs-5"></i>
+    <span class="small fw-medium">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("toast-fade-out");
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 3000);
+}
 
 // LocalStorage helpers
 function loadExpenses() {
@@ -95,6 +123,66 @@ function resetFilters() {
   renderExpenses();
 }
 
+// Edit & Delete Actions
+function editExpense(id) {
+  const item = expenses.find((exp) => exp.id.toString() === id.toString());
+  if (!item) return;
+
+  editingId = item.id;
+
+  const amountInput = document.getElementById("amount");
+  const descriptionInput = document.getElementById("description");
+  const categorySelect = document.getElementById("category");
+  const submitBtnText = document.getElementById("submit-btn-text");
+  const cancelBtn = document.getElementById("cancel-edit-btn");
+
+  if (amountInput) amountInput.value = item.amount;
+  if (descriptionInput) descriptionInput.value = item.description;
+  if (categorySelect) categorySelect.value = item.category;
+
+  if (submitBtnText) submitBtnText.textContent = "Update Expense";
+  if (cancelBtn) cancelBtn.classList.remove("d-none");
+
+  // Highlight editing item
+  renderExpenses();
+
+  // Scroll to form smoothly
+  const formCard = document.querySelector(".form-card");
+  if (formCard) {
+    formCard.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function cancelEdit() {
+  editingId = null;
+
+  const form = document.getElementById("expense-form");
+  if (form) form.reset();
+
+  const submitBtnText = document.getElementById("submit-btn-text");
+  const cancelBtn = document.getElementById("cancel-edit-btn");
+
+  if (submitBtnText) submitBtnText.textContent = "Add Expense";
+  if (cancelBtn) cancelBtn.classList.add("d-none");
+
+  renderExpenses();
+}
+
+function deleteExpense(id) {
+  const item = expenses.find((exp) => exp.id.toString() === id.toString());
+  const itemDesc = item ? item.description : "Expense";
+
+  if (editingId && editingId.toString() === id.toString()) {
+    cancelEdit();
+  }
+
+  expenses = expenses.filter((exp) => exp.id.toString() !== id.toString());
+  saveExpenses();
+  renderExpenses();
+  updateStats();
+  showToast(`Deleted "${itemDesc}"`, "danger");
+}
+
 // Render List
 function renderExpenses() {
   const container = document.getElementById("expense-list");
@@ -116,8 +204,12 @@ function renderExpenses() {
 
   itemsToRender.forEach((item) => {
     const config = CATEGORY_CONFIG[item.category] || CATEGORY_CONFIG.other;
+    const isEditing = editingId && editingId.toString() === item.id.toString();
+
     const card = document.createElement("div");
-    card.className = "glass-panel p-3 d-flex align-items-center justify-content-between";
+    card.className = `glass-panel expense-item p-3 d-flex flex-wrap align-items-center justify-content-between gap-3 ${
+      isEditing ? "is-editing" : ""
+    }`;
     card.setAttribute("data-id", item.id);
 
     card.innerHTML = `
@@ -126,17 +218,43 @@ function renderExpenses() {
           <i class="bi ${config.icon}"></i>
         </div>
         <div>
-          <h6 class="mb-1 text-white fw-semibold">${item.description}</h6>
-          <span class="badge bg-secondary-subtle text-light text-uppercase">${config.label}</span>
+          <h6 class="mb-1 text-white fw-semibold">${escapeHtml(item.description)}</h6>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-secondary-subtle text-light text-uppercase">${config.label}</span>
+            <small class="text-secondary">${formatDate(item.id)}</small>
+          </div>
         </div>
       </div>
-      <div class="text-end">
+      <div class="d-flex align-items-center gap-3 ms-auto">
         <span class="fs-5 fw-bold text-success">+$${Number(item.amount).toFixed(2)}</span>
+        <div class="d-flex align-items-center gap-1">
+          <button type="button" class="btn btn-action-edit" title="Edit Expense" onclick="editExpense('${item.id}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button type="button" class="btn btn-action-delete" title="Delete Expense" onclick="deleteExpense('${item.id}')">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
       </div>
     `;
 
     container.appendChild(card);
   });
+}
+
+function formatDate(timestamp) {
+  const d = new Date(Number(timestamp));
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function handleSubmit(event) {
@@ -148,18 +266,34 @@ function handleSubmit(event) {
 
   if (!amount || !description) return;
 
-  const newExpense = {
-    id: Date.now().toString(),
-    amount: parseFloat(amount),
-    category,
-    description
-  };
+  if (editingId) {
+    // Update existing expense
+    const index = expenses.findIndex((exp) => exp.id.toString() === editingId.toString());
+    if (index !== -1) {
+      expenses[index].amount = parseFloat(amount);
+      expenses[index].category = category;
+      expenses[index].description = description;
+      saveExpenses();
+      showToast("Expense updated successfully!", "info");
+    }
+    cancelEdit();
+  } else {
+    // Add new expense
+    const newExpense = {
+      id: Date.now().toString(),
+      amount: parseFloat(amount),
+      category,
+      description
+    };
 
-  expenses.unshift(newExpense);
-  saveExpenses();
+    expenses.unshift(newExpense);
+    saveExpenses();
+    showToast("Expense added successfully!", "success");
+    form.reset();
+  }
+
   renderExpenses();
   updateStats();
-  form.reset();
 }
 
 // Initialize on load

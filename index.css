@@ -289,3 +289,98 @@ select.input-custom option {
   letter-spacing: -0.02em;
 }
 
+/* Expense List Items */
+.expense-item {
+  transition: var(--transition);
+}
+
+.expense-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+}
+
+.expense-item.is-editing {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3) !important;
+  background: rgba(30, 41, 66, 0.9) !important;
+}
+
+/* Action Buttons */
+.btn-action-edit {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+  transition: var(--transition);
+}
+
+.btn-action-edit:hover {
+  background: #38bdf8;
+  color: #0b0f19;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.btn-action-delete {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+  transition: var(--transition);
+}
+
+.btn-action-delete:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Custom Glass Toast */
+.custom-toast {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.25rem;
+  color: var(--text-main);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.5rem;
+}
+
+.custom-toast.toast-success {
+  border-left: 4px solid #10b981;
+}
+
+.custom-toast.toast-info {
+  border-left: 4px solid #38bdf8;
+}
+
+.custom-toast.toast-danger {
+  border-left: 4px solid #ef4444;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-fade-out {
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 0.3s ease-out;
+}
+
