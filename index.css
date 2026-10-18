@@ -183,3 +183,47 @@ select.input-custom option {
 .btn-gradient:active {
   transform: translateY(0);
 }
+
+/* Category Badges */
+.category-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.category-icon-badge.food {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--cat-food);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.category-icon-badge.transportation {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--cat-transport);
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.category-icon-badge.entertainment {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--cat-entertainment);
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.category-icon-badge.utilities {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--cat-utilities);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.category-icon-badge.other {
+  background: rgba(100, 116, 139, 0.15);
+  color: var(--cat-other);
+  border-color: rgba(100, 116, 139, 0.3);
+}
